@@ -1,92 +1,67 @@
 🧠 ArXiv Chatbot with Tool-Augmented Reasoning
-This is a conversational AI assistant powered by ollama and augmented with custom tools for interacting with academic papers from arXiv. Ask it questions about research topics, and it will smartly retrieve, store, and extract information from papers — with tool use handled automatically under the hood.
+A conversational AI assistant powered by Ollama, augmented with tools to interact with arXiv papers. Automatically retrieves, stores, and extracts research papers for you.
 
 🚀 Features
 Natural Chat Interface with memory/history.
 
-Tool-Augmented Reasoning: When relevant, the chatbot auto-detects keywords in its own output and invokes custom tools (search_papers, extract_info) to assist.
+Tool-Augmented Reasoning: Auto-detects and invokes tools (search_papers, extract_info) when needed.
 
-Paper Search from arXiv.org via the arxiv Python library.
+arXiv Paper Search: Fetches papers via the arxiv Python library.
 
-Paper Storage: Results are saved under structured topic directories as JSON.
+Structured Storage: Saves papers in topic-based JSON files.
 
-Information Extraction by paper_id, even across multiple topic folders.
+Information Extraction: Retrieves metadata by paper_id across all topics.
 
-🧩 Project Structure
+🛠️ Setup
+Install Dependencies:
+
+sh
+pip install ollama arxiv python-dotenv
+Set Up Ollama:
+
+sh
+ollama pull llama3  # or another compatible model
+▶️ Usage
+Run the chatbot:
+
+sh
+python chatbot.py
+Example Workflow
+You: "Search for papers on generative AI."
+Assistant:
+
+[Tool: search_papers] Found 3 papers:  
+- 2405.01234: "A Breakthrough in Generative Models"  
+- 2405.05678: "Diffusion-Based Text-to-Image Synthesis"  
+You: "Show details for paper 2405.01234."
+Assistant:
+
+json
+{
+  "title": "A Breakthrough in Generative Models",
+  "authors": ["Alice A.", "Bob B."],
+  "summary": "...",
+  "pdf_url": "https://arxiv.org/pdf/2405.01234",
+  "published": "2024-05-12"
+}
+📁 Project Structure
 project-root/
-│
-├── chatbot.py                # Main chatbot class & loop
+├── chatbot.py                # Main chatbot loop
 ├── utils/
-│   ├── search_paper.py       # Tool: search papers from arXiv and save them
-│   ├── extract_info.py       # Tool: extract saved info for a given paper ID
-│   └── tool_mapping.py       # Maps tool name → function
-│
-├── papers/                   # Automatically generated folder to store paper info
-│   └── topic_name/
-│       └── papers_info.json  # Metadata of papers by topic
+│   ├── search_paper.py       # arXiv search & storage tool
+│   ├── extract_info.py       # Metadata extraction tool
+│   └── tool_mapping.py       # Tool name → function mapping
+└── papers/                   # Paper storage
+    └── topic_name/
+        └── papers_info.json  # Paper metadata by topic
 
-
-🧠 Tool Logic
+🔧 Tools
 search_papers
-Triggered when chatbot mentions search_papers.
+Trigger: Mentions of search_papers + topic (e.g., "machine learning").
 
-Requires topic (e.g. "machine learning").
-
-Fetches top arXiv papers and stores them as JSON files under papers/<topic>/.
+Action: Fetches top arXiv papers, saves to papers/<topic>/papers_info.json.
 
 extract_info
-Triggered when chatbot mentions extract_info.
+Trigger: Mentions of extract_info + paper_id (e.g., "2405.01234").
 
-Requires paper_id (e.g. "2401.12345").
-
-Searches all topic folders for that paper ID and returns the stored metadata.
-
-Tool invocation is automatically handled inside the chatbot loop by detecting tool names in the assistant’s output and extracting the required arguments using simple pattern matching.
-
-
-🛠️ How to Use
-1. Install Dependencies
-uv pip install -r requirements.txt
-
-Requirements include:
-
-ollama
-
-arxiv
-
-python-dotenv
-
-2. Set Up Ollama
-Make sure you have Ollama installed and a compatible model like llama3 pulled locally:
-ollama pull llama3
-
-3. Run the Chatbot
-python chatbot.py
-
-
-🔍 Example Conversation
-You: Can you search_papers on generative AI?
-Assistant: Sure! I will search for recent papers on the topic of generative AI using arXiv...
-[Tool search_papers Result]: 2405.01234, 2405.05678, ...
-
-You: extract_info for paper_id = 2405.01234
-Assistant: Here’s what I found for paper 2405.01234:
-{
-  "title": "...",
-  "authors": [...],
-  ...
-}
-
-📁 Paper Storage Format
-Each topic folder contains a single papers_info.json with structure:
-{
-  "2405.01234": {
-    "title": "A Breakthrough in ...",
-    "authors": ["Alice A.", "Bob B."],
-    "summary": "...",
-    "pdf_url": "...",
-    "published": "2024-05-12"
-  },
-  ...
-}
-
+Action: Searches all topic folders for the paper and returns metadata.
